@@ -5,6 +5,7 @@ public class Percolation {
     private final int size;
     private final WeightedQuickUnionUF unionFind;
     private final boolean[] open;
+    private int countOpen = 0;
 
     // creates n-by-n grid, with all sites initially blocked
     public Percolation(int n) {
@@ -33,7 +34,10 @@ public class Percolation {
     public void open(int row, int col) {
 
         validateSquare(row, col);
-        open[to1D(row, col)] = true;
+        if (!open[to1D(row, col)]) {
+            open[to1D(row, col)] = true;
+            countOpen++;
+        }
 
         if (col > 1 && open[to1D(row, col - 1)]) {
             unionFind.union(to1D(row, col), to1D(row, col - 1));
@@ -65,13 +69,7 @@ public class Percolation {
 
     // returns the number of open sites
     public int numberOfOpenSites() {
-        int count = 0;
-        for (boolean b : open) {
-            if (b) {
-                count++;
-            }
-        }
-        return count;
+        return countOpen;
     }
 
     // does the system percolate?
@@ -79,9 +77,9 @@ public class Percolation {
         return unionFind.connected(0, (int) Math.pow(size, 2) + 1);
     }
 
-    // UncommentedEmptyMethodBody
+    // test client (optional)
     public static void main(String[] args) {
-        throw new UnsupportedOperationException();
+        // TODO
     }
 
     private void validateSquare(int row, int col) {
