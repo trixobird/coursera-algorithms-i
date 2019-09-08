@@ -6,6 +6,7 @@ public class Percolation {
     private final WeightedQuickUnionUF unionFind;
     private final boolean[] open;
     private int countOpen = 0;
+    private final int last;
 
     // creates n-by-n grid, with all sites initially blocked
     public Percolation(int n) {
@@ -14,17 +15,15 @@ public class Percolation {
         }
         size = n;
         open = new boolean[(int) (Math.pow(size, 2) + 2)];
+        last = (int) (Math.pow(size, 2) + 1);
         open[0] = true;
         open[open.length - 1] = true;
-        for (int i = 1; i < open.length - 1; i++) {
-            open[i] = false;
-        }
 
         WeightedQuickUnionUF uf = new WeightedQuickUnionUF((int) (Math.pow(n, 2) + 2));
         for (int i = 1; i <= n; i++) {
             uf.union(0, i);
         }
-        for (int i = (int) (Math.pow(n, 2) - n + 1); i <= Math.pow(n, 2); i++) {
+        for (int i = last - n; i < last; i++) {
             uf.union((int) (Math.pow(n, 2) + 1), i);
         }
         unionFind = uf;
@@ -48,7 +47,7 @@ public class Percolation {
         if (row > 1 && open[to1D(row - 1, col)]) {
             unionFind.union(to1D(row, col), to1D(row - 1, col));
         }
-        if (row < 1 && open[to1D(row + 1, col)]) {
+        if (row < size && open[to1D(row + 1, col)]) {
             unionFind.union(to1D(row, col), to1D(row + 1, col));
         }
     }
@@ -64,7 +63,7 @@ public class Percolation {
     public boolean isFull(int row, int col) {
 
         validateSquare(row, col);
-        return unionFind.connected(0, to1D(row, col));
+        return isOpen(row, col) && unionFind.connected(0, to1D(row, col));
     }
 
     // returns the number of open sites
@@ -74,6 +73,10 @@ public class Percolation {
 
     // does the system percolate?
     public boolean percolates() {
+        if (size == 1) {
+            return isOpen(1, 1);
+        }
+
         return unionFind.connected(0, (int) Math.pow(size, 2) + 1);
     }
 
@@ -95,6 +98,6 @@ public class Percolation {
     }
 
     private int to1D(int row, int col) {
-        return size * (col - 1) + row;
+        return size * (row - 1) + col;
     }
 }
