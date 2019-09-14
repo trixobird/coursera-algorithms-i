@@ -4,6 +4,7 @@ public class Percolation {
 
     private final int size;
     private final WeightedQuickUnionUF unionFind;
+    private final WeightedQuickUnionUF unionFind2;
     private final boolean[] open;
     private int countOpen = 0;
     private final int last;
@@ -19,14 +20,17 @@ public class Percolation {
         open[0] = true;
         open[open.length - 1] = true;
 
-        WeightedQuickUnionUF uf = new WeightedQuickUnionUF((int) (Math.pow(n, 2) + 2));
+        WeightedQuickUnionUF uf = new WeightedQuickUnionUF(last + 2);
+        WeightedQuickUnionUF uf2 = new WeightedQuickUnionUF(last + 1);
         for (int i = 1; i <= n; i++) {
             uf.union(0, i);
+            uf2.union(0, i);
         }
         for (int i = last - n; i < last; i++) {
             uf.union((int) (Math.pow(n, 2) + 1), i);
         }
         unionFind = uf;
+        unionFind2 = uf2;
     }
 
     // opens the site (row, col) if it is not open already
@@ -40,15 +44,19 @@ public class Percolation {
 
         if (col > 1 && open[to1D(row, col - 1)]) {
             unionFind.union(to1D(row, col), to1D(row, col - 1));
+            unionFind2.union(to1D(row, col), to1D(row, col - 1));
         }
         if (col < size && open[to1D(row, col + 1)]) {
             unionFind.union(to1D(row, col), to1D(row, col + 1));
+            unionFind2.union(to1D(row, col), to1D(row, col + 1));
         }
         if (row > 1 && open[to1D(row - 1, col)]) {
             unionFind.union(to1D(row, col), to1D(row - 1, col));
+            unionFind2.union(to1D(row, col), to1D(row - 1, col));
         }
         if (row < size && open[to1D(row + 1, col)]) {
             unionFind.union(to1D(row, col), to1D(row + 1, col));
+            unionFind2.union(to1D(row, col), to1D(row + 1, col));
         }
     }
 
@@ -63,7 +71,7 @@ public class Percolation {
     public boolean isFull(int row, int col) {
 
         validateSquare(row, col);
-        return isOpen(row, col) && unionFind.connected(0, to1D(row, col));
+        return isOpen(row, col) && unionFind2.connected(0, to1D(row, col));
     }
 
     // returns the number of open sites
